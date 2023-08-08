@@ -1,0 +1,29 @@
+name: deepmeteor-py310
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pynvml=11.4.1
+  - pytorch-gpu=2.0.0
+  - optuna=3.2.0
+  - wandb
+  - h5py
+  - numpy
+  - scipy
+  - statsmodels
+  - uproot
+  - hist
+  - vector
+  - matplotlib
+  - mplhep
+  - tqdm
+  - coolname
+  - PyYAML
+  - colorama
+  - tensorboard
+  - pandas
+  - python-htcondor
+  - pip
+  - pip:
+    - git+https://github.com/slowmoyang/hierconfig.git
+    - git+https://github.com/slowmoyang/torchhep.git

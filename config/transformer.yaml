@@ -1,0 +1,45 @@
+model:
+  name: Transformer
+  cont_embed_dim: 16
+  pdgid_embed_dim: 8
+  charge_embed_dim: 8
+  num_heads: 2
+  dropout_prob: 0
+  num_layers: 2
+data:
+  data_dir: null # retrieved from env var PROJECT_DATA_DIR
+  train: # train files
+    - perfNano_TTbar_PU200.110X_set0.root
+    - perfNano_TTbar_PU200.110X_set1.root
+    - perfNano_TTbar_PU200.110X_set2.root
+    - perfNano_TTbar_PU200.110X_set3.root
+  val: # validation files
+    - perfNano_TTbar_PU200.110X_set4.root
+  test: # test files
+    - perfNano_TTbar_PU200.110X_set5.root
+    - perfNano_TTbar_PU200.110X_set6.root
+  batch_size: 256
+  eval_batch_size: 512
+  max_size: 100
+  entry_start: null
+  entry_stop: null
+data_transformation:
+  puppi_cands_cont_std: [10.687, 10.687, 1.417, 1.00] # px, py, eta, wgt
+  gen_met_std: [63.918, 63.918] # px, py
+training:
+  loss: 'HuberLoss'
+  num_epochs: 10
+  max_grad_norm: 1
+  lr_cosine_annealing: false
+optimizer: # AdamW
+  learning_rate: 3.0e-4
+  beta1: 0.9
+  beta2: 0.95
+  weight_decay: 0.1
+log_base: null # base dir where logs are saved
+log_name: null # log dir name. if not given, a random name will be generated.
+seed: 1337
+cuda: -1 # auto. multi-gpu is not supported
+deterministic: true # use cuda deterministic operations
+num_threads: 1 # threads used for pytorch intraop parallelism on CPU.
+mode: 'run'
