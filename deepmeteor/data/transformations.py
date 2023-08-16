@@ -4,7 +4,7 @@ import yaml
 import torch
 import torch.nn as nn
 from torch import Tensor
-from deepmeteor.data.dataset import Example
+from deepmeteor.data.example import Example
 
 
 class DataTransformation(nn.Module, metaclass=abc.ABCMeta):

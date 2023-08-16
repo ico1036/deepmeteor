@@ -1,43 +1,12 @@
-from dataclasses import dataclass
-from typing import Callable
 import numpy as np
 import uproot
 import torch
-from torch import Tensor
 from torch.nn.utils.rnn import pad_sequence
+from torch.nn.utils.rnn import unpad_sequence
 from torch.utils.data import Dataset
-from torchhep.data.utils import TensorCollection
-
-
-@dataclass
-class Example(TensorCollection):
-    puppi_cands_cont: Tensor # all continuous variables: px, py, eta and PUPPI
-    puppi_cands_pdgid: Tensor # categorical data
-    puppi_cands_charge: Tensor # categorical
-    gen_met: Tensor
-    puppi_met: Tensor
-
-    @property
-    def target(self) -> Tensor:
-        return self.gen_met
-
-
-@dataclass
-class Batch(TensorCollection):
-    puppi_cands_cont: Tensor
-    puppi_cands_pdgid: Tensor
-    puppi_cands_charge: Tensor
-    puppi_cands_data_mask: Tensor
-    puppi_cands_length: Tensor
-    gen_met: Tensor
-    puppi_met: Tensor
-
-    def __len__(self):
-        return len(self.puppi_cands_cont)
-
-    @property
-    def target(self) -> Tensor:
-        return self.gen_met
+from deepmeteor.data.example import Example
+from deepmeteor.data.example import Batch
+from deepmeteor.data.transformations import DataTransformation
 
 
 # FIXME
@@ -70,25 +39,17 @@ class MeteorDataset(Dataset):
 
     def __init__(self,
                  examples: list[Example],
-                 transformation: Callable[[Example], Example] | None
     ) -> None:
         self.examples = examples
-        self.transformation = transformation
 
     def __len__(self) -> int:
         return len(self.examples)
 
     def __getitem__(self, index: int) -> Example:
-        example = self.examples[index]
-        if self.transformation is not None:
-            example = self.transformation(example)
-        return example
+        return self.examples[index]
 
     def __add__(self, other: 'MeteorDataset') -> 'MeteorDataset':
-        return self.__class__(
-            self.examples + other.examples,
-            self.transformation
-        )
+        return self.__class__(self.examples + other.examples)
 
     @classmethod
     def collate(cls, examples: list[Example]) -> Batch:
@@ -117,6 +78,7 @@ class MeteorDataset(Dataset):
     @classmethod
     def process_root(cls,
                      path: str,
+                     transformation: DataTransformation | None,
                      max_size: int | None,
                      entry_start: int | None = None,
                      entry_stop: int | None = None,
@@ -192,6 +154,20 @@ class MeteorDataset(Dataset):
         puppi_met_arr = np.stack([puppi_met_px_arr, puppi_met_py_arr], axis=1)
         puppi_met_arr = torch.from_numpy(puppi_met_arr)
 
+
+        if transformation is not None:
+            print('preprocessing data')
+            # trick to speed up the input preprocessing
+            lengths = torch.as_tensor([each.size(0) for each in puppi_cands_cont_arr])
+            puppi_cands_cont_arr = pad_sequence(puppi_cands_cont_arr)
+            puppi_cands_cont_arr = transformation.transform_puppi_cands_cont(
+                puppi_cands_cont_arr)
+            puppi_cands_cont_arr = unpad_sequence(puppi_cands_cont_arr,
+                                                  lengths)
+
+            gen_met_arr = transformation.transform_gen_met(gen_met_arr)
+            puppi_met_arr = transformation.transform_gen_met(puppi_met_arr)
+
         field_dict = {
             'puppi_cands_cont': puppi_cands_cont_arr,
             'puppi_cands_pdgid': puppi_cands_pdgid_arr,
@@ -206,7 +182,7 @@ class MeteorDataset(Dataset):
     @classmethod
     def from_root(cls,
                   path_list: list[str],
-                  transformation: Callable[[Example], Example] | None,
+                  transformation: DataTransformation | None,
                   max_size: int | None = 100,
                   entry_start: int | None = None,
                   entry_stop: int | None = None,
@@ -214,8 +190,14 @@ class MeteorDataset(Dataset):
         examples: list[Example] = []
         for each in path_list:
             print(f'reading {each}')
-            examples += cls.process_root(each, max_size, entry_start, entry_stop)
-        return cls(examples, transformation)
+            examples += cls.process_root(
+                path=each,
+                transformation=transformation,
+                max_size=max_size,
+                entry_start=entry_start,
+                entry_stop=entry_stop
+            )
+        return cls(examples)
 
     @classmethod
     @property
