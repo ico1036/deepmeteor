@@ -1,8 +1,8 @@
 # DeepMETEOR: Deep Learning-based MET Estimation for Online Reconstruction
 
 ## Recipes
-You can install python dependenceis using conda.
-### intalll
+### install
+You can install python dependencies using conda.
 ```bash
 condaa create -y -f environment.yaml
 ```
@@ -22,7 +22,7 @@ You can download ttbar samples using the following script.
 ```
 
 ### quick start
-All configuraiton is handled using yaml file.
+All configuration is handled using yaml file.
 ```bash
 python train.py ./config/transformer.yaml
 ```
