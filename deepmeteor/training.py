@@ -27,6 +27,7 @@ from hierconfig.config import config_field, ConfigBase
 from deepmeteor.data.dataset import MeteorDataset
 from deepmeteor.data.transformations import DataTransformation
 from deepmeteor.data.transformations import Standardization
+from deepmeteor.data.eventweighting import EventWeightingConfig
 from deepmeteor.models.base import ModelConfigBase
 from deepmeteor.models.base import ModelBase
 from deepmeteor.models.utils import init_weights
@@ -104,6 +105,7 @@ class RunConfigBase(ConfigBase):
     model: ModelConfigBase
     data: DataConfig = DataConfig()
     data_transformation: DataTransformationConfig = DataTransformationConfig()
+    event_weighting: EventWeightingConfig = EventWeightingConfig()
     optimizer: OptimizerConfig = OptimizerConfig()
     training: TrainingConfig = TrainingConfig()
     log_base: Optional[str] = None
@@ -168,6 +170,7 @@ def train(model: ModelBase,
         optimizer.zero_grad(set_to_none=True)
         output = model.run(batch)
         loss = loss_fn(input=output, target=batch.target)
+        loss = (batch.weight * loss.mean(dim=1)).mean()
         loss.backward()
         clip_grad_norm_(model.parameters(), config.training.max_grad_norm)
         optimizer.step()
@@ -238,6 +241,7 @@ def evaluate(model: ModelBase,
         batch = batch.to(device)
         output = model.run(batch)
         loss = loss_fn(input=output, target=batch.target)
+        loss = batch.weight * loss.mean(dim=1)
 
         #######################################################################
         #
@@ -257,7 +261,7 @@ def evaluate(model: ModelBase,
         #######################################################################
         # accumulation
         #######################################################################
-        loss_sum += len(batch) * loss.item()
+        loss_sum += loss.sum().item()
 
         for comp in component_list:
             for algo in ['gen', 'puppi', 'deep']:
@@ -379,17 +383,19 @@ def run(config: RunConfigBase) -> None:
         lr_scheduler = None
 
     # loss function
-    loss_fn = find_loss_cls(config.training.loss)().to(device)
+    loss_fn = find_loss_cls(config.training.loss)(reduction='none').to(device)
 
     ###########################################################################
     # ⭐ dataset
     ###########################################################################
     # TODO
     data_xform = Standardization.from_dict(asdict(config.data_transformation))
+    event_weighting = config.event_weighting.build()
 
     train_set = MeteorDataset.from_root(
         path_list=config.data.train_files,
         transformation=data_xform,
+        event_weighting=event_weighting,
         entry_start=config.data.entry_start,
         entry_stop=config.data.entry_stop,
     )
@@ -398,6 +404,7 @@ def run(config: RunConfigBase) -> None:
     val_set = MeteorDataset.from_root(
         path_list=config.data.val_files,
         transformation=data_xform,
+        event_weighting=event_weighting,
         entry_start=config.data.entry_start,
         entry_stop=config.data.entry_stop,
     )
@@ -507,6 +514,7 @@ def run(config: RunConfigBase) -> None:
     test_set = MeteorDataset.from_root(
         path_list=config.data.test_files,
         transformation=data_xform,
+        event_weighting=event_weighting,
         entry_start=config.data.entry_start,
         entry_stop=config.data.entry_stop,
     )

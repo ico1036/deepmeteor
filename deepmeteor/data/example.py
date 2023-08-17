@@ -9,6 +9,7 @@ class Example(TensorCollection):
     puppi_cands_charge: Tensor # categorical
     gen_met: Tensor
     puppi_met: Tensor
+    weight: Tensor
 
     @property
     def target(self) -> Tensor:
@@ -24,6 +25,7 @@ class Batch(TensorCollection):
     puppi_cands_length: Tensor
     gen_met: Tensor
     puppi_met: Tensor
+    weight: Tensor
 
     def __len__(self):
         return len(self.puppi_cands_cont)

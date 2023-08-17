@@ -1,3 +1,4 @@
+from typing import Callable
 import numpy as np
 import uproot
 import torch
@@ -79,6 +80,7 @@ class MeteorDataset(Dataset):
     def process_root(cls,
                      path: str,
                      transformation: DataTransformation | None,
+                     event_weighting, # FIXME
                      max_size: int | None,
                      entry_start: int | None = None,
                      entry_stop: int | None = None,
@@ -154,6 +156,8 @@ class MeteorDataset(Dataset):
         puppi_met_arr = np.stack([puppi_met_px_arr, puppi_met_py_arr], axis=1)
         puppi_met_arr = torch.from_numpy(puppi_met_arr)
 
+        weight = event_weighting(data['genMet_pt'])
+        weight = torch.from_numpy(weight)
 
         if transformation is not None:
             print('preprocessing data')
@@ -174,6 +178,7 @@ class MeteorDataset(Dataset):
             'puppi_cands_charge': puppi_cands_charge_arr,
             'gen_met': gen_met_arr,
             'puppi_met': puppi_met_arr,
+            'weight': weight,
         }
         field_dict = {key: value for key, value in field_dict.items()}
         return [Example(*each) for each
@@ -183,6 +188,7 @@ class MeteorDataset(Dataset):
     def from_root(cls,
                   path_list: list[str],
                   transformation: DataTransformation | None,
+                  event_weighting: Callable,
                   max_size: int | None = 100,
                   entry_start: int | None = None,
                   entry_stop: int | None = None,
@@ -193,6 +199,7 @@ class MeteorDataset(Dataset):
             examples += cls.process_root(
                 path=each,
                 transformation=transformation,
+                event_weighting=event_weighting,
                 max_size=max_size,
                 entry_start=entry_start,
                 entry_stop=entry_stop

@@ -193,10 +193,10 @@ class Transformer(ModelBase):
 
         self.aggregator = ScatterMean()
 
-        self.regression_head = nn.Sequential(
-            nn.BatchNorm1d(config.embed_dim),
-            nn.GELU(),
-            nn.Linear(config.embed_dim, MeteorDataset.target_num_features)
+        self.regression_head = nn.Linear(
+            in_features=config.embed_dim,
+            out_features=MeteorDataset.target_num_features,
+            bias=False
         )
 
     def forward(self,
