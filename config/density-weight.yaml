@@ -1,0 +1,57 @@
+cuda: -1
+data:
+  batch_size: 256
+  data_dir: null
+  entry_start: null
+  entry_stop: null
+  eval_batch_size: 512
+  max_size: 100
+  test:
+  - perfNano_TTbar_PU200.110X_set5.root
+  - perfNano_TTbar_PU200.110X_set6.root
+  train:
+  - perfNano_TTbar_PU200.110X_set0.root
+  - perfNano_TTbar_PU200.110X_set1.root
+  - perfNano_TTbar_PU200.110X_set2.root
+  - perfNano_TTbar_PU200.110X_set3.root
+  val:
+  - perfNano_TTbar_PU200.110X_set4.root
+data_transformation:
+  gen_met_std:
+  - 63.918
+  - 63.918
+  puppi_cands_cont_std:
+  - 10.687
+  - 10.687
+  - 1.417
+  - 1.0
+deterministic: false
+event_weighting:
+  file: null # FIXME
+  name: DensityWeightHist
+log_base: null
+log_name: null
+mode: run
+model:
+  charge_embed_dim: 8
+  cont_embed_dim: 40
+  dropout_prob: 0.01
+  name: Transformer
+  num_heads: 4
+  num_layers: 2
+  pdgid_embed_dim: 16
+num_threads: 1
+optimizer:
+  beta1: 0.9
+  beta2: 0.95
+  fused: true
+  learning_rate: 0.01
+  weight_decay: 0.1
+seed: -1
+training:
+  loss: MSELoss
+  lr_cosine_annealing: true
+  max_grad_norm: 1
+  num_epochs: 100
+  t_0: 10
+  t_mult: 2
