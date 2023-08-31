@@ -19,6 +19,8 @@ data:
   max_size: 100
   entry_start: 0
   entry_stop: 5120
+event_weighting:
+  name: NoWeighting
 data_transformation:
   puppi_cands_cont_std: [10.687, 10.687, 1.417, 1.00] # px, py, eta, wgt
   gen_met_std: [63.918, 63.918] # px, py
