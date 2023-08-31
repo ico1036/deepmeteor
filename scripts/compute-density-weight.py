@@ -2,14 +2,24 @@
 from pathlib import Path
 import os
 import argparse
+import uproot.writing
 from deepmeteor.data.eventweighting import DensityWeightHist
 
 
 def run(input_dir: Path, output_dir: Path):
     path_list = [input_dir / f'perfNano_TTbar_PU200.110X_set{index}.root'
                  for index in range(4)]
+
+    output_path = output_dir / DensityWeightHist.__name__
+
     event_weighting = DensityWeightHist.from_root(path_list)
-    event_weighting.to_npz(output_dir / f'{DensityWeightHist.__name__}.npz')
+
+    event_weighting.to_npz(output_path.with_suffix('.npz'))
+
+    file = uproot.writing.create(output_path.with_suffix('.root'))
+    file['weight'] = event_weighting.to_hist()
+    file.close()
+
     return event_weighting
 
 def main():
