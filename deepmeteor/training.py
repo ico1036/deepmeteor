@@ -120,7 +120,7 @@ class RunConfigBase(ConfigBase):
     deterministic: bool = config_field(default=False,
                                        help='use deterministic algorithms')
     num_threads: int = 1
-    mode: str = config_field(default='run', choices=('run', 'sanity-check'))
+    mode: str = config_field(default='run', choices=('run', 'sanity-check', 'batch'))
 
     def __post_init__(self):
         if self.cuda < 0:
@@ -144,6 +144,10 @@ class RunConfigBase(ConfigBase):
     def log_dir(self) -> Path:
         return Path(self.log_base) / self.log_name
 
+    @property
+    def batch_mode(self) -> bool:
+        return self.mode == 'batch'
+
 
 class PhaseEnum(Enum):
     TRAINING = 1
@@ -164,7 +168,7 @@ def train(model: ModelBase,
     model.train()
 
     num_batches = len(data_loader)
-    progress_bar = tqdm.tqdm(data_loader)
+    progress_bar = tqdm.tqdm(data_loader, disable=config.batch_mode)
     for batch_idx, batch in enumerate(progress_bar):
         batch = batch.to(device)
         optimizer.zero_grad(set_to_none=True)
@@ -237,7 +241,7 @@ def evaluate(model: ModelBase,
     ###########################################################################
     # loop
     ###########################################################################
-    for batch in tqdm.tqdm(data_loader, desc=f'👀 [{phase.name}]'):
+    for batch in tqdm.tqdm(data_loader, desc=f'👀 [{phase.name}]', disable=config.batch_mode):
         batch = batch.to(device)
         output = model.run(batch)
         loss = loss_fn(input=output, target=batch.target)
@@ -342,7 +346,7 @@ def run(config: RunConfigBase) -> None:
     hep.style.use(hep.styles.CMS)
 
     log_dir = config.log_dir
-    log_dir.mkdir(parents=True)
+    log_dir.mkdir(parents=True, exist_ok=config.batch_mode)
     config.to_yaml(log_dir / 'config.yaml')
 
     print(str(config))
