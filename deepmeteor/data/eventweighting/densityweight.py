@@ -62,7 +62,8 @@ class DensityWeightHist(EventWeighting):
         # f''
         weight = np.clip(weight, eps, None)
         # f
-        weight = weight / weight.mean()
+        avg_weight = (count * weight).sum() / count.sum()
+        weight = weight / avg_weight
 
         return cls(weight_hist=weight, edges=edges)
 
