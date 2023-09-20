@@ -1,17 +1,18 @@
 import warnings
 
-ALGO_LIST = ['gen', 'puppi', 'deep']
+ALGO_LIST = ['gen', 'puppi', 'meteor']
 
 COLOR_DICT = {
     'gen': 'black',
     'puppi': 'tab:green',
-    'deep': 'tab:red',
+    'meteor': 'tab:red',
 }
 
 ALGO_LABEL_DICT = {
     'gen': 'Generated',
     'puppi': 'PUPPI',
-    'deep': 'Deep Learning',
+    'meteor': 'METEOR',
+    'deepmet': 'DeepMET'
 }
 
 _LABEL_DICT = {
@@ -27,8 +28,24 @@ _LABEL_DICT = {
 COMPONENT_LIST = ['px', 'py', 'pt', 'phi']
 
 LABEL_DICT = _LABEL_DICT.copy()
+
+# /u/user/seyang/work/meteor/deepmeteor/deepmeteor/const.py:65: UserWarning: failed to get the label for name='loss_0_30'
+#   warnings.warn(f'failed to get the label for {name=}')
+# /u/user/seyang/work/meteor/deepmeteor/deepmeteor/const.py:65: UserWarning: failed to get the label for name='loss_30_60'
+#   warnings.warn(f'failed to get the label for {name=}')
+# /u/user/seyang/work/meteor/deepmeteor/deepmeteor/const.py:65: UserWarning: failed to get the label for name='loss_60_100'
+#   warnings.warn(f'failed to get the label for {name=}')
+# /u/user/seyang/work/meteor/deepmeteor/deepmeteor/const.py:65: UserWarning: failed to get the label for name='loss_100_150'
+#   warnings.warn(f'failed to get the label for {name=}')
+# /u/user/seyang/work/meteor/deepmeteor/deepmeteor/const.py:65: UserWarning: failed to get the label for name='loss_150_inf'
+
 LABEL_DICT |= {
     'loss': 'Loss',
+    'loss_0_30': 'Loss for $p_{T}^{miss,GEN}$ < 30 GeV',
+    'loss_30_60': 'Loss for 30 GeV < $p_{T}^{miss,GEN}$ < 60 GeV',
+    'loss_60_100': 'Loss for 60 GeV < $p_{T}^{miss,GEN}$ < 100 GeV',
+    'loss_100_150': 'Loss for 100 GeV < $p_{T}^{miss,GEN}$ < 150 GeV',
+    'loss_150_inf': 'Loss for 150 GeV < $p_{T}^{miss,GEN}$',
 }
 
 for comp in COMPONENT_LIST:

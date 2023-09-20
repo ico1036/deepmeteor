@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 import numpy as np
 import uproot
 from hist.hist import Hist
@@ -25,6 +27,11 @@ class DensityWeightHist(EventWeighting):
     @classmethod
     def build(cls, file: str):
         return cls.from_npz(file)
+
+    @classmethod
+    @property
+    def input_name(cls):
+        return f'{cls.__name__}.npz'
 
     def compute(self, input):
         bins = np.digitize(input, bins=self.edges, right=False) - 1

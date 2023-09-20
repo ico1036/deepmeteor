@@ -10,6 +10,8 @@ class Example(TensorCollection):
     gen_met: Tensor
     puppi_met: Tensor
     weight: Tensor
+    gen_met_pt: Tensor
+    puppi_cands_pxpy: Tensor
 
     @property
     def target(self) -> Tensor:
@@ -26,6 +28,8 @@ class Batch(TensorCollection):
     gen_met: Tensor
     puppi_met: Tensor
     weight: Tensor
+    gen_met_pt: Tensor
+    puppi_cands_pxpy: Tensor
 
     def __len__(self):
         return len(self.puppi_cands_cont)

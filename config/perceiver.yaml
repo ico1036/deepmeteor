@@ -1,11 +1,15 @@
-cuda: -1
+batch: false
+compile: true
+cuda: 0
 data:
-  batch_size: 256
+  batch_size: 512
   data_dir: null
   entry_start: null
   entry_stop: null
   eval_batch_size: 512
+  eval_cut: null
   max_size: 100
+  pt_topk: false
   test:
   - perfNano_TTbar_PU200.110X_set5.root
   - perfNano_TTbar_PU200.110X_set6.root
@@ -14,6 +18,7 @@ data:
   - perfNano_TTbar_PU200.110X_set1.root
   - perfNano_TTbar_PU200.110X_set2.root
   - perfNano_TTbar_PU200.110X_set3.root
+  train_cut: null
   val:
   - perfNano_TTbar_PU200.110X_set4.root
 data_transformation:
@@ -27,19 +32,24 @@ data_transformation:
   - 1.0
 deterministic: false
 event_weighting:
-  file: null # FIXME
   name: DensityWeightHist
 log_base: null
 log_name: null
-mode: run
 model:
-  charge_embed_dim: 8
-  cont_embed_dim: 40
-  dropout_prob: 0.01
-  name: Transformer
-  num_heads: 4
-  num_layers: 2
-  pdgid_embed_dim: 16
+  activation: ReLU
+  charge_embed_dim: 2
+  cont_embed_dim: 12
+  dropout_p: 0
+  embed_dim: 16
+  final_activation: Identity
+  final_bias: false
+  latent_len: 8
+  name: Perceiver
+  num_heads: 2
+  num_layers: 4
+  pdgid_embed_dim: 2
+  weight_dim: 0
+  widening_factor: 1
 num_threads: 1
 optimizer:
   beta1: 0.9
@@ -47,11 +57,13 @@ optimizer:
   fused: true
   learning_rate: 0.01
   weight_decay: 0.1
+sanity_check: false
 seed: -1
 training:
+  early_stopping_patience: 50
   loss: MSELoss
-  lr_cosine_annealing: true
+  lr_cosine_annealing: false
   max_grad_norm: 1
-  num_epochs: 100
+  num_epochs: 500
   t_0: 10
   t_mult: 2

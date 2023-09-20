@@ -1,0 +1,23 @@
+import numpy as np
+from .base import EventWeighting
+
+
+class WeightingComposition(EventWeighting):
+    weighting_funcs: list[EventWeighting]
+
+    def __init__(self, weighting_funcs: list[EventWeighting]):
+        self.weighting_funcs = weighting_funcs
+
+    @classmethod
+    def build(cls, **kwargs):
+        return cls()
+
+    @classmethod
+    @property
+    def input_name(cls):
+        return None
+
+    def compute(self,
+                gen_met_pt: npt.NDArray[np.float32]
+    ) -> npt.NDArray[np.float32]:
+        return np.copy(gen_met_pt)

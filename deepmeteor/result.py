@@ -30,6 +30,11 @@ class TrainingResult(ResultBase):
 @dataclass
 class EvaluationResult(ResultBase):
     loss: float
+    loss_0_30: float
+    loss_30_60: float
+    loss_60_100: float
+    loss_100_150: float
+    loss_150_inf: float
     # reduced chi2 = chi2 / ndf
     reduced_chi2_px: float
     reduced_chi2_py: float
@@ -59,7 +64,7 @@ class EvaluationResult(ResultBase):
     @classmethod
     @property
     def worst(cls):
-        args = [float('inf')] * 21
+        args = [float('inf')] * len(fields(cls))
         return cls(*args)
 
 # silly one...

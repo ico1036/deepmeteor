@@ -9,7 +9,8 @@ from deepmeteor.const import ALGO_LIST
 from deepmeteor.const import COLOR_DICT
 from deepmeteor.const import ALGO_LABEL_DICT
 from deepmeteor.const import get_label
-
+from deepmeteor.utils import Errorbar
+from deepmeteor import env
 
 def save_fig(fig: plt.Figure,
              output_path: Path,
@@ -74,7 +75,7 @@ def build_residual_hist(met_dict: dict[str, MissingET],
         residual_func = lambda lhs, rhs: lhs[name] - rhs[name]
 
     hist_dict = {}
-    for algo in ['puppi', 'deep']:
+    for algo in ['puppi', 'meteor']:
         data = residual_func(met_dict[algo], met_dict['gen'])
         hist_dict[algo] = create_hist(f'residual_{name}')
         hist_dict[algo].fill(data)
@@ -94,7 +95,7 @@ def plot_residual_hist(met_dict: dict[str, MissingET],
     ax = typing.cast(plt.Axes, ax)
 
     plot_kwargs = dict(ax=ax, flow='none', lw=2)
-    for algo in ['puppi', 'deep']:
+    for algo in ['puppi', 'meteor']:
         algo_label = ALGO_LABEL_DICT[algo]
         stat = Hist1DStat.from_hist(hist_dict[algo])
         label = f'{algo_label} ({stat})'
@@ -110,6 +111,41 @@ def plot_residual_hist(met_dict: dict[str, MissingET],
 
     ax.legend()
     ax.grid()
+
+    if output_path is not None:
+        save_fig(fig, output_path)
+
+    if close:
+        plt.close(fig)
+
+    return fig
+
+
+
+def plot_gen_vs_rec(meteor: Errorbar,
+                    output_path: Path | None,
+                    close: bool = True,
+) -> plt.Figure:
+    """
+    """
+    deepmet = Errorbar.from_npz(env.find_from_data_dir('gen-vs-rec/DeepMET.npz'))
+    puppi = Errorbar.from_npz(env.find_from_data_dir('gen-vs-rec/PUPPI.npz'))
+
+    fig, ax = plt.subplots()
+    meteor.plot(ax=ax, label='METEOR', color='tab:orange')
+    deepmet.plot(ax=ax, label='DeepMET', color='tab:blue')
+    puppi.plot(ax=ax, label='PUPPI', color='tab:green')
+
+    xlow = meteor.xlow
+    xup = meteor.xup
+    ax.plot([xlow, xup], [xlow, xup], lw=2, alpha=0.8, ls='--')
+    ax.set_xlim(xlow, xup)
+    ax.set_ylim(xlow, xup)
+
+    ax.set_xlabel(r'Generated $p_{T}^{miss}\ [GeV]$')
+    ax.set_ylabel(r'Reconstructed $p_{T}^{miss}\ [GeV]$')
+
+    ax.legend()
 
     if output_path is not None:
         save_fig(fig, output_path)

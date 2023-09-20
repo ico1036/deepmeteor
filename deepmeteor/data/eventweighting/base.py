@@ -8,8 +8,15 @@ WeightArray = npt.NDArray[np.float32]
 
 class EventWeighting(abc.ABC):
 
-    @abc.abstractclassmethod
+    @classmethod
+    @abc.abstractmethod
     def build(cls, file: str):
+        ...
+
+    @classmethod
+    @property
+    @abc.abstractmethod
+    def input_name(cls) -> str | None:
         ...
 
     @abc.abstractmethod

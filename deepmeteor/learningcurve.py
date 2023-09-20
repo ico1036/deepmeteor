@@ -33,6 +33,9 @@ class Monitor:
         for key, value in vars(self).items():
             pd.DataFrame(value).to_csv(output_dir / f'{key}.csv')
 
+    def to_json(self, output_dir: Path):
+        for key, value in vars(self).items():
+            pd.DataFrame(value).to_json(output_dir / f'{key}.json')
 
     def draw(self,
              name: str,
