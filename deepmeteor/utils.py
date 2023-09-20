@@ -1,3 +1,4 @@
+import numpy as np
 import vector
 
 
@@ -8,6 +9,11 @@ class MissingET(vector.MomentumNumpy2D):
         component_list = ['pt', 'phi'] if cylindrical else ['px', 'py']
         return cls({component: array[:, idx]
                     for idx, component in enumerate(component_list)})
+
+    @classmethod
+    def from_npy(cls, path, cylindrical):
+        array = np.load(path)
+        return cls.from_array(array, cylindrical)
 
     @classmethod
     def from_tensor(cls, tensor, cylindrical: bool = False):
