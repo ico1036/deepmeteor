@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import torch
 import torch.nn as nn
 from torch import Tensor
+import torchhep.optuna.hyperparameter as hp
 from deepmeteor.models.base import ModelBase
 from deepmeteor.models.base import ModelConfigBase
 from deepmeteor.data.dataset import MeteorDataset
@@ -141,25 +142,35 @@ class TransformerEncoder(nn.Module):
 @dataclass
 class TransformerConfig(ModelConfigBase):
     name: str = 'Transformer' # TODO note
-    cont_embed_dim: int = 16
-    pdgid_embed_dim: int = 8
-    charge_embed_dim: int = 8
-    num_heads: int = 2
-    dropout_prob: int = 0
-    num_layers: int = 2
-
+    depth: int = hp.int_field(default=8, low=4, high=64)
+    num_heads: int = hp.int_field(default=2, low=1, high=4)
+    dropout_prob: int = hp.float_field(default=0.01, low=0, high=0.1)
+    num_layers: int = hp.int_field(default=1, low=1, high=4)
 
     def build(self):
         return Transformer(self)
 
-    def __post_init__(self):
-        if self.embed_dim % self.num_heads != 0:
-            raise RuntimeError
-
     @property
     def embed_dim(self) -> int:
-        return (self.cont_embed_dim + self.pdgid_embed_dim
-                + self.charge_embed_dim)
+        return self.depth * self.num_heads
+
+    @property
+    def cont_embed_dim(self):
+        dim = int(0.5 * self.embed_dim)
+        assert dim > 0
+        return dim
+
+    @property
+    def pdgid_embed_dim(self):
+        dim = int(0.25 * self.embed_dim)
+        assert dim > 0
+        return dim
+
+    @property
+    def charge_embed_dim(self):
+        dim = self.embed_dim - self.cont_embed_dim - self.pdgid_embed_dim
+        assert dim > 0
+        return dim
 
 
 class Transformer(ModelBase):

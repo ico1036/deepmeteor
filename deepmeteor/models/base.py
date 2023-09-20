@@ -2,12 +2,12 @@ from dataclasses import dataclass
 import abc
 import torch.nn as nn
 from torch import Tensor
-from hierconfig.config import ConfigBase
+from torchhep.optuna.hyperparameter import HyperparameterConfigBase
 from deepmeteor.data.dataset import Batch
 
 
 @dataclass
-class ModelConfigBase(ConfigBase, metaclass=abc.ABCMeta):
+class ModelConfigBase(HyperparameterConfigBase, metaclass=abc.ABCMeta):
     name: str
 
     @abc.abstractmethod

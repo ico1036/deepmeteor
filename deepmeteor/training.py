@@ -153,6 +153,7 @@ class PhaseEnum(Enum):
     TRAINING = 1
     VALIDATION = 2
     TEST = 3
+    VALIDATION_OPTUNA = 4
 
 
 def train(model: ModelBase,
@@ -161,7 +162,7 @@ def train(model: ModelBase,
           optimizer: torch.optim.Optimizer,
           device: torch.device,
           config: RunConfigBase,
-          monitor: Monitor,
+          monitor: Monitor | None,
           lr_scheduler: CosineAnnealingWarmRestarts | None = None,
           epoch: int = -10000,
 ) -> None:
@@ -180,9 +181,10 @@ def train(model: ModelBase,
         optimizer.step()
 
         # FIXME
-        monitor.training.append(TrainingResult(
-            loss=loss.item()
-        ))
+        if monitor is not None:
+            monitor.training.append(TrainingResult(
+                loss=loss.item()
+            ))
 
         if lr_scheduler is not None:
             # epoch starts with 1
@@ -197,10 +199,10 @@ def evaluate(model: ModelBase,
              data_xform: DataTransformation,
              loss_fn: nn.Module,
              device: torch.device,
-             phase: PhaseEnum,
-             output_dir: Path,
              config: RunConfigBase,
-             epoch: int,
+             phase: PhaseEnum,
+             output_dir: Path | None,
+             epoch: int | None,
 ) -> EvaluationResult:
     ###########################################################################
     # setup
@@ -224,6 +226,8 @@ def evaluate(model: ModelBase,
         output_path = output_dir / 'validation.root'
         output_file = uproot.writing.update(output_path)
         output_file.mkdir(f'epoch_{epoch:0>5d}')
+    elif phase is PhaseEnum.VALIDATION_OPTUNA:
+        ...
     else:
         raise RuntimeError
 
@@ -293,6 +297,8 @@ def evaluate(model: ModelBase,
         output_file.close()
     elif phase is PhaseEnum.TEST:
         output_file.close()
+    elif phase is PhaseEnum.VALIDATION_OPTUNA:
+        ...
     else:
         raise RuntimeError
 
@@ -458,7 +464,8 @@ def run(config: RunConfigBase) -> None:
     learning_curve_dir = log_dir / 'learning_curve'
     learning_curve_dir.mkdir()
 
-    uproot.writing.create(learning_curve_dir / 'validation.root')
+    with uproot.writing.create(learning_curve_dir / 'validation.root'):
+        ...
 
     for epoch in range(0, 1 + config.training.num_epochs):
         print(f'\n🔥 Epoch {epoch}')

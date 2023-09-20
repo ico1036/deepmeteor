@@ -6,6 +6,7 @@ dependencies:
   - pynvml=11.4.1
   - pytorch-gpu=2.0.0
   - optuna=3.2.0
+  - scikit-learn
   - wandb
   - h5py
   - numpy
