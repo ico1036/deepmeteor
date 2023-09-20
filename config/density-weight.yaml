@@ -33,13 +33,11 @@ log_base: null
 log_name: null
 mode: run
 model:
-  charge_embed_dim: 8
-  cont_embed_dim: 40
-  dropout_prob: 0.01
   name: Transformer
+  depth: 16
   num_heads: 4
-  num_layers: 2
-  pdgid_embed_dim: 16
+  num_layers: 1
+  dropout_prob: 0.01
 num_threads: 1
 optimizer:
   beta1: 0.9

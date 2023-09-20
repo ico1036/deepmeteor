@@ -1,11 +1,9 @@
 model:
   name: Transformer
-  cont_embed_dim: 16
-  pdgid_embed_dim: 8
-  charge_embed_dim: 8
-  num_heads: 2
-  dropout_prob: 0
-  num_layers: 2
+  depth: 16
+  num_heads: 4
+  num_layers: 1
+  dropout_prob: 0.01
 data:
   data_dir: null # retrieved from env var PROJECT_DATA_DIR
   train: # train files
