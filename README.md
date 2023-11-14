@@ -7,6 +7,11 @@ You can install python dependencies using conda.
 condaa create -y -f environment.yaml
 ```
 
+#### T3_KR_KNU
+```bash
+CONDA_OVERRIDE_CUDA=11.7 mamba create -y -f environment.yaml
+```
+
 ### setup
 `setup.zsh` exports two environment variables named `PROJECT_DATA_DIR` and `PROJECT_LOG_DIR`.
 `PROJECT_DATA_DIR` is a directory where datasets are stored and `PROJECT_LOG_DIR` is a directory where training output files are saved.

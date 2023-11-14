@@ -1,4 +1,4 @@
-name: deepmeteor-py310
+name: test-deepmeteor-py310
 channels:
   - conda-forge
 dependencies:
@@ -24,6 +24,7 @@ dependencies:
   - tensorboard
   - pandas
   - python-htcondor
+  - pdfcombine
   - pip
   - pip:
     - git+https://github.com/slowmoyang/hierconfig.git
