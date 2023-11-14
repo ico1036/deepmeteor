@@ -30,6 +30,32 @@ data_transformation:
   - 1.0
 event_weighting:
   name: DensityWeightHist
+<<<<<<< HEAD:config/retrain/test.yaml
+||||||| 21c1c6d:config/density-weight.yaml
+log_base: null
+log_name: null
+mode: run
+model:
+  charge_embed_dim: 8
+  cont_embed_dim: 40
+  dropout_prob: 0.01
+  name: Transformer
+  num_heads: 4
+  num_layers: 2
+  pdgid_embed_dim: 16
+num_threads: 1
+=======
+log_base: null
+log_name: null
+mode: run
+model:
+  name: Transformer
+  depth: 16
+  num_heads: 4
+  num_layers: 1
+  dropout_prob: 0.01
+num_threads: 1
+>>>>>>> 4b12bf9b2a43d122f8b6e63395377fd152a61f0f:config/density-weight.yaml
 optimizer:
   beta1: 0.9
   beta2: 0.95
